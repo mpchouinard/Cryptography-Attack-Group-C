@@ -1,36 +1,4 @@
 #!/usr/bin/env python3
-"""
-SAT-based State Recovery Attack on A5/1 Extended Stream Cipher (A51_EXT_STREAM)
-================================================================================
-
-Design Summary (from A51_EXT_STREAM.v):
-  SR1: 19 bits  — polynomial x^19+x^18+x^17+x^14+1  — taps [18,17,16,13] — clock bit sr1[8]
-  SR2: 22 bits  — polynomial x^22+x^21+1              — taps [21,20]       — clock bit sr2[10]
-  SR3: 23 bits  — polynomial x^23+x^22+x^21+x^8+1    — taps [22,21,20,7]  — clock bit sr3[10]
-
-  Clock majority: maj(sr1[8], sr2[10], sr3[10])
-    A register clocks iff its clock bit equals the majority vote.
-
-  Feedback equations:
-    sr1_feedback = sr1[18] ^ sr1[17] ^ sr1[16] ^ sr1[13]
-    sr2_feedback = sr2[21] ^ sr2[20]
-    sr3_feedback = (sr3[22]^sr3[21]^sr3[20]^sr3[7]) ^ (sr1_feedback & sr2_feedback)
-
-  Key loading (64 clock cycles with enable_setkey=1):
-    Cycles  0-18  -> shift data_in into SR1  (sr1 = {sr1[17:0], data_in})
-    Cycles 19-40  -> shift data_in into SR2
-    Cycles 41-63  -> shift data_in into SR3
-
-  IMPORTANT - output timing:
-    sig_out is a combinational assign: sr1[18] ^ sr2[21] ^ sr3[22]
-    The Verilator testbench reads sig_out AFTER eval() on the rising edge,
-    so the observed bit reflects the state AFTER the registers have clocked.
-    Therefore each keystream bit = output computed from the POST-clock state.
-
-Requirements:
-  pip install z3-solver
-"""
-
 import sys
 import time
 import argparse
